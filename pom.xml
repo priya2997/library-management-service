@@ -16,7 +16,7 @@
 	<description>Demo project of library service</description>
 	<properties>
 		<java.version>11</java.version>
-		<docker.image.prefix>mylibraryservice</docker.image.prefix>
+		
 	</properties>
 	<dependencies>
 		<dependency>
@@ -54,28 +54,11 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <version>1.4.12</version>
-            <executions>
-                <execution>
-                    <id>default</id>
-                    <goals>
-                        <goal>build</goal>
-                        <goal>push</goal>
-                    </goals>
-                </execution>
-            </executions>
- 
-            <configuration>
-                <repository>${docker.image.prefix}/librarymanagementservice</repository>
-                <tag>${project.version}</tag>
-                <buildArgs>
-                    <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-                </buildArgs>
-            </configuration>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>library-management-service</finalName>
 	</build>
 
 </project>
