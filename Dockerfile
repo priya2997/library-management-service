@@ -1,7 +1,5 @@
 FROM openjdk:11
-
-EXPOSE 8080
-
-ADD target/library-management-service.jar library-management-service.jar
-
-ENTRYPOINT ["java","-jar","library-management-service.jar"]
+EXPOSE 8080 
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
