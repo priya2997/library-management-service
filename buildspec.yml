@@ -28,7 +28,7 @@ phases:
     - echo Writing image definitions file...
     - printf '[{"name":"library-management-service","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
     - cat imagedefinitions.json
-  artifacts:
+artifacts:
     files:
     - imagedefinitions.json
     - target/order-service.jar
