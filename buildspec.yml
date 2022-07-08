@@ -1,33 +1,35 @@
-version: 0.2
+# Change the following to your desired values:
+#   __ACCOUNT_NUMBER__
+#   __ECR_REGION__
+#   __ECR_REPOSITORY_NAME__
+#   __ECS_CONTAINER_NAME__
 
+version: 0.2
 phases:
+  install:
+    runtime-versions:
+      docker: 18
   pre_build:
     commands:
-      - mvn clean install
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login --region us-east-1 --no-include-email)
+      - $(aws ecr get-login --region __ECR_REGION__ --no-include-email)
       - REPOSITORY_URI=389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
-
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
       - echo Build started on `date`
-      - echo Building the Docker image...
-      - mvn package
-      - docker build -t 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:latest .
-      - docker tag 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:latest 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:$IMAGE_TAG
+      - echo Building the Docker image...          
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-      - docker push 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:latest
-      - docker push 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '[{"name":"library-management-service","imageUri":"%s"}]' 389293849742.dkr.ecr.us-east-1.amazonaws.com/library-management-registry:$IMAGE_TAG > imagedefinitions.json
-      - cat imagedefinitions.json
+      - printf '[{"name”:"aws-cluster-assignment","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
-  files:
-    - imagedefinitions.json
-    - target/order-service.jar
+  files: imagedefinitions.json
